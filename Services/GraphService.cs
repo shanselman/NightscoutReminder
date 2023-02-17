@@ -80,7 +80,7 @@ namespace NightscoutReminder
                     Title = subject,
                     DueDateTime = new DateTimeTimeZone
                     {
-                        DateTime = expires.ToUniversalTime().ToString("o"),
+                        DateTime = expires.Date.ToString("o"),
                         TimeZone = TimeZoneInfo.Utc.Id
                     }
                 };
@@ -123,7 +123,7 @@ namespace NightscoutReminder
             {
                 var tasks = await this.graphServiceClient.Me.Todo.Lists[taskList.Id].Tasks.GetAsync(r =>
                 {
-                    r.QueryParameters.Filter = $"title eq '{subject}' and dueDateTime/dateTime eq '{expires.ToUniversalTime().ToString("o")}'";
+                    r.QueryParameters.Filter = $"title eq '{subject}' and dueDateTime/dateTime eq '{expires.Date.ToString("o")}'";
                 });
 
                 return tasks?.Value?.Count > 0;

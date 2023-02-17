@@ -18,7 +18,7 @@ namespace NightscoutReminder
 
             foreach (var property in properties)
             {
-                var subject = $"🚨 Your {property.Name?.ToLower()} is about to expire";
+                var subject = $"Your {property.Name?.ToLower()} is about to expire";
                 await AddCalendarEvent(graphService, subject, property.Expires);
                 await AddTodoItem(graphService, subject, property.Expires);
             }
