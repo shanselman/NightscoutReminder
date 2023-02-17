@@ -42,13 +42,13 @@ namespace NightscoutReminder
                 Subject = subject,
                 Start = new DateTimeTimeZone
                 {
-                    DateTime = expires.ToString("o"),
-                    TimeZone = TimeZoneInfo.Local.Id
+                    DateTime = expires.ToUniversalTime().ToString("o"),
+                    TimeZone = TimeZoneInfo.Utc.Id
                 },
                 End = new DateTimeTimeZone
                 {
-                    DateTime = expires.AddHours(1).ToString("o"),
-                    TimeZone = TimeZoneInfo.Local.Id
+                    DateTime = expires.ToUniversalTime().AddHours(1).ToString("o"),
+                    TimeZone = TimeZoneInfo.Utc.Id
                 }
             };
 
@@ -61,7 +61,7 @@ namespace NightscoutReminder
             // check if the reminder already exists
             var events = await this.graphServiceClient.Me.Calendar.Events.GetAsync(r =>
             {
-                r.QueryParameters.Filter = $"subject eq '{subject}' and start/dateTime eq '{expires.ToString("o")}'";
+                r.QueryParameters.Filter = $"subject eq '{subject}' and start/dateTime eq '{expires.ToUniversalTime().ToString("o")}'";
             });
 
             return events?.Value?.Count > 0;
@@ -80,8 +80,8 @@ namespace NightscoutReminder
                     Title = subject,
                     DueDateTime = new DateTimeTimeZone
                     {
-                        DateTime = expires.ToString("o"),
-                        TimeZone = TimeZoneInfo.Local.Id
+                        DateTime = expires.ToUniversalTime().ToString("o"),
+                        TimeZone = TimeZoneInfo.Utc.Id
                     }
                 };
 
@@ -123,7 +123,7 @@ namespace NightscoutReminder
             {
                 var tasks = await this.graphServiceClient.Me.Todo.Lists[taskList.Id].Tasks.GetAsync(r =>
                 {
-                    r.QueryParameters.Filter = $"title eq '{subject}' and startDateTime/dateTime eq '{expires.ToString("o")}'";
+                    r.QueryParameters.Filter = $"title eq '{subject}' and dueDateTime/dateTime eq '{expires.ToUniversalTime().ToString("o")}'";
                 });
 
                 return tasks?.Value?.Count > 0;
