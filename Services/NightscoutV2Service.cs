@@ -4,12 +4,11 @@ namespace NightscoutReminder
 {
     public class NightscoutV2Service
     {
-        // Create an HttpClient instance           
         private HttpClient Client;
-        // Define the Nightscout URL
-        private readonly string Url = "https://hanselsugar.herokuapp.com/api/v2/properties/cage,sage";
-        public NightscoutV2Service()
+        private string? url;
+        public NightscoutV2Service(string url)
         {
+            this.url = url;
             if (this.Client == null)
             {
                 this.Client = new HttpClient();
@@ -19,13 +18,24 @@ namespace NightscoutReminder
         public async Task<List<NightscoutProperty>> GetSageCageProperties()
         {
             var fetchedProperties = new List<NightscoutProperty>();
-            var response = await this.Client.GetAsync(this.Url);
+            var response = await this.Client.GetAsync($"{this.url}/sage,cage");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var json = JsonDocument.Parse(content);
                 JsonElement root = json.RootElement;
 
+                //CGM Sensor Expiration
+                JsonElement sage = root.GetProperty("sage").GetProperty("Sensor Change");
+                string epochSage = sage.GetProperty("treatmentDate").ToString();
+                DateTime sensorExpires = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(epochSage)).DateTime.AddDays(10);
+
+                fetchedProperties.Add(new NightscoutProperty
+                {
+                    Name = "Sensor",
+                    Expires = sensorExpires
+                });
+                
                 //Pump Expiration
                 JsonElement cage = root.GetProperty("cage");
                 string epochCage = cage.GetProperty("treatmentDate").ToString();
@@ -35,20 +45,6 @@ namespace NightscoutReminder
                 {
                     Name = "Pump",
                     Expires = pumpExpires
-                });
-
-                Console.WriteLine($"Pump Expires: {pumpExpires}");
-
-                //CGM Sensor Expiration
-                JsonElement sage = root.GetProperty("sage").GetProperty("Sensor Change");
-                string epochSage = sage.GetProperty("treatmentDate").ToString();
-                DateTime sensorExpires = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(epochSage)).DateTime.AddDays(10);
-                Console.WriteLine($"Sensor Expires: {sensorExpires}");
-
-                fetchedProperties.Add(new NightscoutProperty
-                {
-                    Name = "Sensor",
-                    Expires = sensorExpires
                 });
             }
 
