@@ -1,6 +1,7 @@
 ﻿using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Azure.Identity;
+using System.Text;
 
 namespace NightscoutReminder
 {
@@ -10,6 +11,7 @@ namespace NightscoutReminder
         private static NightscoutV2Service? nightscoutV2Service;
         public static async Task Main(string[] args)
         {
+            //Console.WriteLine(new Rune(0x1F6A8).Value + " Nightscout Reminder");
             var settings = Settings.LoadSettings();
             nightscoutV2Service = new NightscoutV2Service(settings.NightscoutUrl!);
             graphService = new GraphService(settings.ClientId!, settings.TenantId!, settings.Scopes!);
@@ -18,17 +20,17 @@ namespace NightscoutReminder
 
             foreach (var property in properties)
             {
-                var subject = $"🚨 Your {property.Name?.ToLower()} is about to expire";
-                await AddCalendarEvent(graphService, subject, property.Expires);
-                await AddTodoItem(graphService, subject, property.Expires);
+                var subject = $"Your {property.Name?.ToLower()} is about to expire";
+                await AddCalendarEvent(graphService, subject, "🚨", property.Expires);
+                await AddTodoItem(graphService, subject, "🚨", property.Expires);
             }
         }
 
-        private static async Task AddCalendarEvent(GraphService graphService, string subject, DateTime expires)
+        private static async Task AddCalendarEvent(GraphService graphService, string subject, string emoji, DateTime expires)
         {
             if (!await graphService.HasEvent(subject, expires))
             {
-                await graphService.AddEvent(subject, expires);
+                await graphService.AddEvent(subject, emoji, expires);
                 Console.WriteLine($"Reminder '{subject}' on {expires} was added");
             }
             else
@@ -37,11 +39,11 @@ namespace NightscoutReminder
             }
         }
 
-        private static async Task AddTodoItem(GraphService graphService, string subject, DateTime expires)
+        private static async Task AddTodoItem(GraphService graphService, string subject, string emoji, DateTime expires)
         {
             if (!await graphService.HasTodoItem(subject, expires))
             {
-                await graphService.AddTodoItem(subject, expires);
+                await graphService.AddTodoItem(subject, emoji, expires);
                 Console.WriteLine($"Task '{subject}' on {expires} was added");
             }
             else

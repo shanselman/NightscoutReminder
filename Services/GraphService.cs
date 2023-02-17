@@ -26,21 +26,11 @@ namespace NightscoutReminder
             this.graphServiceClient = new GraphServiceClient(deviceCodeCredential, this.scopes);
         }
 
-        public async Task AddEvent(string subject, DateTime expires)
+        public async Task AddEvent(string subject, string emoji, DateTime expires)
         {
-            // check if the reminder already exists
-            var events = await this.graphServiceClient.Me.Calendar.Events.GetAsync(r =>
-            {
-                r.QueryParameters.Filter = $"subject eq '{subject}'";
-            });
-
-            if (events?.Value?.Count > 0)
-            {
-                return;
-            }
             var reminderEvent = new Event
             {
-                Subject = subject,
+                Subject = String.IsNullOrEmpty(emoji) ? $"{subject}" : $"{emoji} {subject}",
                 Start = new DateTimeTimeZone
                 {
                     DateTime = expires.ToUniversalTime().ToString("o"),
@@ -62,14 +52,14 @@ namespace NightscoutReminder
             // check if the reminder already exists
             var events = await this.graphServiceClient.Me.Calendar.Events.GetAsync(r =>
             {
-                r.QueryParameters.Filter = $"subject eq '{subject}' and start/dateTime eq '{expires.ToUniversalTime().ToString("o")}'";
+                r.QueryParameters.Filter = $"contains(subject, '{subject}') and start/dateTime eq '{expires.ToUniversalTime().ToString("o")}'";
             });
 
             return events?.Value?.Count > 0;
         }
 
         // add a todo item from the nightscout properties to microsoft graph
-        public async Task AddTodoItem(string subject, DateTime expires)
+        public async Task AddTodoItem(string subject, string emoji, DateTime expires)
         {
             // check if the reminder already exists
             var taskList = await this.GetDefaultTaskList();
@@ -78,7 +68,7 @@ namespace NightscoutReminder
             {
                 var reminderTask = new TodoTask
                 {
-                    Title = subject,
+                    Title = String.IsNullOrEmpty(emoji) ? $"{subject}" : $"{emoji} {subject}",
                     DueDateTime = new DateTimeTimeZone
                     {
                         DateTime = expires.Date.ToString("o"),
@@ -125,7 +115,7 @@ namespace NightscoutReminder
             {
                 var tasks = await this.graphServiceClient.Me.Todo.Lists[taskList.Id].Tasks.GetAsync(r =>
                 {
-                    r.QueryParameters.Filter = $"title eq '{subject}' and dueDateTime/dateTime eq '{expires.Date.ToString("o")}'";
+                    r.QueryParameters.Filter = $"contains(title, '{subject}') and dueDateTime/dateTime eq '{expires.Date.ToString("o")}'";
                 });
 
                 return tasks?.Value?.Count > 0;
