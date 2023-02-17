@@ -12,13 +12,13 @@ namespace NightscoutReminder
         {
             var settings = Settings.LoadSettings();
             nightscoutV2Service = new NightscoutV2Service(settings.NightscoutUrl!);
-            graphService = new GraphService(settings.ClientId!, settings.Scopes!);
+            graphService = new GraphService(settings.ClientId!, settings.TenantId!, settings.Scopes!);
 
             var properties = await nightscoutV2Service.GetSageCageProperties();
 
             foreach (var property in properties)
             {
-                var subject = $"Your {property.Name?.ToLower()} is about to expire";
+                var subject = $"🚨 Your {property.Name?.ToLower()} is about to expire";
                 await AddCalendarEvent(graphService, subject, property.Expires);
                 await AddTodoItem(graphService, subject, property.Expires);
             }

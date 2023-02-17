@@ -9,14 +9,15 @@ namespace NightscoutReminder
         private GraphServiceClient graphServiceClient;
         private string? clientId;
         private string[]? scopes;
-        public GraphService(string clientId, string scopes)
+        public GraphService(string clientId, string tenantId, string[] scopes)
         {
             this.clientId = clientId;
-            this.scopes = scopes?.Split(',');
+            this.scopes = scopes;
 
             DeviceCodeCredentialOptions deviceCodeCredentialOptions = new DeviceCodeCredentialOptions()
             {
-                ClientId = this.clientId
+                ClientId = this.clientId,
+                TenantId = tenantId,
             };
 
             DeviceCodeCredential deviceCodeCredential = new DeviceCodeCredential(deviceCodeCredentialOptions);
@@ -97,12 +98,13 @@ namespace NightscoutReminder
             {
                 var taskLists = await this.graphServiceClient.Me.Todo.Lists.GetAsync(r =>
                 {
-                    r.QueryParameters.Filter = $"displayName eq 'Tasks'";
+                    r.QueryParameters.Top = 100;
                 });
 
                 if (taskLists?.Value?.Count > 0)
                 {
-                    return taskLists.Value[0];
+                    // get the first task list that is the default list
+                    return taskLists?.Value?.FirstOrDefault(l => l.WellknownListName == WellknownListName.DefaultList);
                 }
             }
             catch (Exception ex)

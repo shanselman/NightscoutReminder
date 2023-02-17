@@ -3,7 +3,8 @@ using Microsoft.Extensions.Configuration;
 public class Settings
 {
     public string? ClientId { get; set; }
-    public string? Scopes { get; set; }
+    public string? TenantId { get; set; }
+    public string[]? Scopes { get; set; }
     public string? NightscoutUrl { get; set; }
 
     public static Settings LoadSettings()
