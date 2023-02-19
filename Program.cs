@@ -16,7 +16,7 @@ namespace NightscoutReminder
             nightscoutV2Service = new NightscoutV2Service(settings.NightscoutUrl!);
             graphService = new GraphService(settings.ClientId!, settings.TenantId!, settings.Scopes!);
 
-            var properties = await nightscoutV2Service.GetSageCageProperties();
+            var properties = await nightscoutV2Service!.GetSageCageProperties();
 
             foreach (var property in properties)
             {

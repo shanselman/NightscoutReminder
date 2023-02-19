@@ -6,6 +6,7 @@ public class Settings
     public string? TenantId { get; set; }
     public string[]? Scopes { get; set; }
     public string? NightscoutUrl { get; set; }
+    public string? ApiKey { get; set; }
 
     public static Settings LoadSettings()
     {
