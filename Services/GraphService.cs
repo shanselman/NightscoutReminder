@@ -1,13 +1,12 @@
 using Azure.Identity;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
-using Microsoft.Graph.Teamwork.MicrosoftGraphSendActivityNotificationToRecipients;
 
 namespace NightscoutReminder
 {
     public class GraphService
     {
-        private GraphServiceClient graphServiceClient;
+        private GraphServiceClient? graphServiceClient;
         private string? clientId;
         private string[]? scopes;
         public GraphService(string clientId, string tenantId, string[] scopes)
@@ -15,15 +14,12 @@ namespace NightscoutReminder
             this.clientId = clientId;
             this.scopes = scopes;
 
-            InteractiveBrowserCredentialOptions credentialOptions = new InteractiveBrowserCredentialOptions()
+            InteractiveBrowserCredential credential = new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions
             {
                 ClientId = this.clientId,
-                TenantId = tenantId,
-            };
+                TenantId = tenantId
+            });
 
-            InteractiveBrowserCredential credential = new InteractiveBrowserCredential(credentialOptions);
-
-            //create client for calling v1 endpoint and get my info 
             this.graphServiceClient = new GraphServiceClient(credential, this.scopes);
         }
 
@@ -45,13 +41,13 @@ namespace NightscoutReminder
             };
 
             // Add the event to the user's calendar
-            await this.graphServiceClient.Me.Calendar.Events.PostAsync(reminderEvent);
+            await this.graphServiceClient!.Me.Calendar.Events.PostAsync(reminderEvent);
         }
 
         public async Task<bool> HasEvent(string subject, DateTimeOffset expires)
         {
             // check if the reminder already exists
-            var events = await this.graphServiceClient.Me.Calendar.Events.GetAsync(r =>
+            var events = await this.graphServiceClient!.Me.Calendar.Events.GetAsync(r =>
             {
                 r.QueryParameters.Filter = $"contains(subject, '{subject}') and start/dateTime eq '{expires.ToUniversalTime().ToString("o")}'";
             });
@@ -78,7 +74,7 @@ namespace NightscoutReminder
                 };
 
                 // Add the event to the user's calendar
-                await this.graphServiceClient.Me.Todo.Lists[taskList.Id].Tasks.PostAsync(reminderTask);
+                await this.graphServiceClient!.Me.Todo.Lists[taskList.Id].Tasks.PostAsync(reminderTask);
             }
         }
 
@@ -87,7 +83,7 @@ namespace NightscoutReminder
         {
             try
             {
-                var taskLists = await this.graphServiceClient.Me.Todo.Lists.GetAsync(r =>
+                var taskLists = await this.graphServiceClient!.Me.Todo.Lists.GetAsync(r =>
                 {
                     r.QueryParameters.Top = 100;
                 });
@@ -114,7 +110,7 @@ namespace NightscoutReminder
 
             if (taskList != null)
             {
-                var tasks = await this.graphServiceClient.Me.Todo.Lists[taskList.Id].Tasks.GetAsync(r =>
+                var tasks = await this.graphServiceClient!.Me.Todo.Lists[taskList.Id].Tasks.GetAsync(r =>
                 {
                     r.QueryParameters.Filter = $"contains(title, '{subject}') and dueDateTime/dateTime eq '{expires.Date.ToString("o")}'";
                 });
@@ -128,13 +124,13 @@ namespace NightscoutReminder
         // get user information from microsoft graph
         public async Task<User?> GetMe()
         {
-            return await this.graphServiceClient.Me.GetAsync();
+            return await this.graphServiceClient!.Me.GetAsync();
         }
 
         // get user's presence information from microsoft graph
         public async Task<Presence?> GetPresence()
         {
-            return await this.graphServiceClient.Me.Presence.GetAsync();
+            return await this.graphServiceClient!.Me.Presence.GetAsync();
         }
     }
 }
