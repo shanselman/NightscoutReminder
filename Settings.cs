@@ -15,7 +15,7 @@ public class Settings
             // appsettings.json is required
             .AddJsonFile("appsettings.json", optional: false)
             // appsettings.Development.json" is optional, values override appsettings.json
-            .AddJsonFile($"appsettings.Development.json", optional: true)
+            .AddJsonFile($"appsettings.development.json", optional: true)
             .Build();
 
         return config.GetRequiredSection("Settings").Get<Settings>() ??

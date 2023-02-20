@@ -53,16 +53,18 @@ namespace NightscoutReminder
             return response;
         }
 
-        // Get Cage treatment date
-        public async Task<DateTimeOffset> GetCageTreatmentDate() {
-            var response = await client.V2.Properties["cage"].GetAsync();
-            return DateTimeOffset.FromUnixTimeMilliseconds(response?.Cage?.TreatmentDate ?? 0);
+        // Get all properties
+        public async Task<Properties?> GetAllProperties() {
+            var response = await client.V2.Properties.GetAsync();
+            return response;
         }
 
-        // Get Sage Sensor date
-        public async Task<DateTimeOffset> GetSageSensorDate() {
-            var response = await client.V2.Properties["sage"].GetAsync();
-            return DateTimeOffset.FromUnixTimeMilliseconds(response?.Sage?.SensorChange?.TreatmentDate ?? 0);
+        // Get cage and sage properties from all properties
+        public async Task<(DateTimeOffset, DateTimeOffset)> GetSageCageExpiry() {
+            var response = await client.V2.Properties.GetAsync();
+            var sageExpiry = DateTimeOffset.FromUnixTimeMilliseconds(response?.Sage?.SensorChange?.TreatmentDate ?? 0).AddDays(10);
+            var cageExpiry = DateTimeOffset.FromUnixTimeMilliseconds(response?.Cage?.TreatmentDate ?? 0).AddDays(3);
+            return (sageExpiry, cageExpiry);
         }
 
         // Get a list of Treatment documents
@@ -89,6 +91,16 @@ namespace NightscoutReminder
             return response?.Result;
         }   
 
+        // Get a list of DeviceStatus documents
+        public async Task<List<DeviceStatus>> GetDeviceStatuses() {
+            var response = await client.V3.Devicestatus.GetAsync();
+            return response?.Result ?? new List<DeviceStatus>();
+        }
+       
+        public async Task<List<Treatment>> GetAllTreatmentHistory() {
+            var response = await client.V3.Treatments.History.GetAsync();
+            return response?.Result ?? new List<Treatment>();
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using Microsoft.Graph.Teamwork.MicrosoftGraphSendActivityNotificationToRecipients;
 
 namespace NightscoutReminder
 {
@@ -14,19 +15,19 @@ namespace NightscoutReminder
             this.clientId = clientId;
             this.scopes = scopes;
 
-            DeviceCodeCredentialOptions deviceCodeCredentialOptions = new DeviceCodeCredentialOptions()
+            InteractiveBrowserCredentialOptions credentialOptions = new InteractiveBrowserCredentialOptions()
             {
                 ClientId = this.clientId,
                 TenantId = tenantId,
             };
 
-            DeviceCodeCredential deviceCodeCredential = new DeviceCodeCredential(deviceCodeCredentialOptions);
+            InteractiveBrowserCredential credential = new InteractiveBrowserCredential(credentialOptions);
 
             //create client for calling v1 endpoint and get my info 
-            this.graphServiceClient = new GraphServiceClient(deviceCodeCredential, this.scopes);
+            this.graphServiceClient = new GraphServiceClient(credential, this.scopes);
         }
 
-        public async Task AddEvent(string subject, string emoji, DateTime expires)
+        public async Task AddEvent(string subject, string emoji, DateTimeOffset expires)
         {
             var reminderEvent = new Event
             {
@@ -47,7 +48,7 @@ namespace NightscoutReminder
             await this.graphServiceClient.Me.Calendar.Events.PostAsync(reminderEvent);
         }
 
-        public async Task<bool> HasEvent(string subject, DateTime expires)
+        public async Task<bool> HasEvent(string subject, DateTimeOffset expires)
         {
             // check if the reminder already exists
             var events = await this.graphServiceClient.Me.Calendar.Events.GetAsync(r =>
@@ -59,7 +60,7 @@ namespace NightscoutReminder
         }
 
         // add a todo item from the nightscout properties to microsoft graph
-        public async Task AddTodoItem(string subject, string emoji, DateTime expires)
+        public async Task AddTodoItem(string subject, string emoji, DateTimeOffset expires)
         {
             // check if the reminder already exists
             var taskList = await this.GetDefaultTaskList();
@@ -106,7 +107,7 @@ namespace NightscoutReminder
         }
 
         // check if a todo item already exists
-        public async Task<bool> HasTodoItem(string subject, DateTime expires)
+        public async Task<bool> HasTodoItem(string subject, DateTimeOffset expires)
         {
             // check if the reminder already exists
             var taskList = await this.GetDefaultTaskList();
