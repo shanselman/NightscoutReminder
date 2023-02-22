@@ -14,11 +14,11 @@
 
             var (sageExpiry, cageExpiry) = await nightscoutV3Service!.GetSageCageExpiry();
 
-            await AddCalendarEvent(graphService, "Your Glucose Sensor is about to expire", "🚨", sageExpiry);
-            await AddCalendarEvent(graphService, "Your Insulin Pump is about to expire", "🚨", cageExpiry);
+            await AddCalendarEvent(graphService, "Your Glucose Sensor is about to expire", "🩸", sageExpiry);
+            await AddCalendarEvent(graphService, "Your Insulin Pump is about to expire", "💉", cageExpiry);
             
-            await AddTodoItem(graphService, "Your Glucose Sensor is about to expire", "🚨", sageExpiry);
-            await AddTodoItem(graphService, "Your Insulin Pump is about to expire", "🚨", cageExpiry);
+            await AddTodoItem(graphService, "Your Glucose Sensor is about to expire", "🩸", sageExpiry);
+            await AddTodoItem(graphService, "Your Insulin Pump is about to expire", "💉", cageExpiry);
         }
 
         private static async Task AddCalendarEvent(GraphService graphService, string subject, string emoji, DateTimeOffset expires)
