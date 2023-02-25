@@ -1,6 +1,6 @@
 {
   "descriptionHash": "E57257AA762CB9D93914D0AB51A782D63305634BB3DDB33D33730360AC727D79CD5E8D8316F5B99CC27C82CCFE4AED60ED8ABF81922BF8E6498FCE154AF2CF11",
-  "descriptionLocation": "https://raw.githubusercontent.com/apidescriptions/nightscout/main/spec/cadl-output/%40cadl-lang/openapi3/openapi.yaml",
+  "descriptionLocation": "https://raw.githubusercontent.com/APIPatterns/nightscoutDescription/main/spec/cadl-output/%40cadl-lang/openapi3/openapi.yaml",
   "lockFileVersion": "1.0.0",
   "kiotaVersion": "0.11.1-preview",
   "clientClassName": "NightScoutClient",
